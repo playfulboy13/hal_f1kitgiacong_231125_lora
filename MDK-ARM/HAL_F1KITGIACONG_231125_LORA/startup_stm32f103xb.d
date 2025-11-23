@@ -1,0 +1,1 @@
+hal_f1kitgiacong_231125_lora\startup_stm32f103xb.o: startup_stm32f103xb.s
