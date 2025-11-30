@@ -32,6 +32,10 @@ extern SemaphoreHandle_t lora_semaphore;
 
 extern uint8_t counter;
 
+extern char debug[256];
+
+extern uint8_t relay_state;
+
 void lora_init_config(void);
 
 void Task1(void *pvParameters);

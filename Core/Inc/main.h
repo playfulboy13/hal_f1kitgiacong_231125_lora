@@ -48,12 +48,14 @@ extern "C" {
 #include "adc.h"
 #include "7seg.h"
 #include "math.h"
+#include "usart3.h"
 
 extern SPI_HandleTypeDef hspi1;
 
 
 extern uint8_t lora_flag;
 extern UART_HandleTypeDef huart1;
+extern UART_HandleTypeDef huart3;
 
 extern RTC_HandleTypeDef hrtc;
 extern RTC_TimeTypeDef sTime;

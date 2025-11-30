@@ -55,4 +55,5 @@ hal_f1kitgiacong_231125_lora\main.o: ../Core/Inc/main.h
 hal_f1kitgiacong_231125_lora\main.o: ../MDK-ARM/adc.h
 hal_f1kitgiacong_231125_lora\main.o: ../MDK-ARM/7seg.h
 hal_f1kitgiacong_231125_lora\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+hal_f1kitgiacong_231125_lora\main.o: ../MDK-ARM/usart3.h
 hal_f1kitgiacong_231125_lora\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h

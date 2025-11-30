@@ -55,4 +55,5 @@ hal_f1kitgiacong_231125_lora\stm32f1xx_it.o: ../Core/Inc/main.h
 hal_f1kitgiacong_231125_lora\stm32f1xx_it.o: ../MDK-ARM/adc.h
 hal_f1kitgiacong_231125_lora\stm32f1xx_it.o: ../MDK-ARM/7seg.h
 hal_f1kitgiacong_231125_lora\stm32f1xx_it.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+hal_f1kitgiacong_231125_lora\stm32f1xx_it.o: ../MDK-ARM/usart3.h
 hal_f1kitgiacong_231125_lora\stm32f1xx_it.o: ../Core/Inc/stm32f1xx_it.h

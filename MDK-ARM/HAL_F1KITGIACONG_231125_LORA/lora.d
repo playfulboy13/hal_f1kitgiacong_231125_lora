@@ -56,3 +56,4 @@ hal_f1kitgiacong_231125_lora\lora.o: ../Core/Inc/main.h
 hal_f1kitgiacong_231125_lora\lora.o: ../MDK-ARM/adc.h
 hal_f1kitgiacong_231125_lora\lora.o: ../MDK-ARM/7seg.h
 hal_f1kitgiacong_231125_lora\lora.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+hal_f1kitgiacong_231125_lora\lora.o: ../MDK-ARM/usart3.h

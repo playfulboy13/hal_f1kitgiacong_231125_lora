@@ -137,7 +137,7 @@ int main(void)
 	//xTaskCreate(Task1,"Task1",256,NULL,1,NULL);
 	//xTaskCreate(TaskSendLora,"TaskSendLora",512,NULL,1,NULL);
 	
-	//xTaskCreate(TaskMaster,"TaskMaster",512,NULL,1,NULL);
+	//xTaskCreate(TaskMaster,"TaskMaster",256,NULL,1,NULL);
 	xTaskCreate(TaskNode,"TaskNode",512,NULL,1,NULL);
 	
 	xTaskCreate(TaskAdc,"TaskAdc",128,NULL,1,NULL);
@@ -145,6 +145,7 @@ int main(void)
 	xTaskCreate(TaskHienThi,"TaskHienThi",128,NULL,1,NULL);
 	xTaskCreate(TaskLed,"TaskLed",128,NULL,1,NULL);
 	xTaskCreate(TaskButton,"TaskButton",128,NULL,1,NULL);
+	//xTaskCreate(TaskSendData,"TaskSendData",256,NULL,1,NULL);
 	vTaskStartScheduler();
 
   /* USER CODE END 2 */

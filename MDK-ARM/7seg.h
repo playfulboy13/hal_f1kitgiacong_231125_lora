@@ -5,6 +5,12 @@
 
 #include "user_task.h"
 
+#define LED1_BIT 0
+#define LED2_BIT 1
+#define LED3_BIT 2
+#define LED4_BIT 3
+
+
 #define DS(x) HAL_GPIO_WritePin(DS_GPIO_Port,DS_Pin,(x)?(GPIO_PIN_SET):(GPIO_PIN_RESET))
 #define SH_CP(x) HAL_GPIO_WritePin(SH_CP_GPIO_Port,SH_CP_Pin,(x)?(GPIO_PIN_SET):(GPIO_PIN_RESET))
 #define ST_CP(x) HAL_GPIO_WritePin(ST_CP_GPIO_Port,ST_CP_Pin,(x)?(GPIO_PIN_SET):(GPIO_PIN_RESET))
@@ -26,6 +32,11 @@ void xuat_1_byte(uint8_t x);
 void xuat_8led_7doan(uint8_t cot_hthi,uint8_t so_hthi);
 void giai_ma_quet(void);
 void giai_ma_quet_2(void);
+void led1_on(void);
+void led1_off(void);
+void set_led_bit(uint8_t bit, uint8_t state);
+
 void TaskHienThi(void *pvParameters);
+
 
 #endif

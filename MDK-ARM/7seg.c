@@ -62,6 +62,25 @@ void giai_ma_quet_2(void)
 	led_7dq[7]=ma7doan[rssi2%10];
 }
 
+void led1_on(void)
+{
+	hc595_handle.led_data|=(1<<LED1_BIT);
+}
+
+void led1_off(void)
+{
+	hc595_handle.led_data&=~(1<<LED1_BIT);
+}
+
+void set_led_bit(uint8_t bit, uint8_t state)
+{
+    if(state) {
+        hc595_handle.led_data |= (1 << bit);   // b?t bit
+    } else {
+        hc595_handle.led_data &= ~(1 << bit);  // t?t bit
+    }
+}
+
 void TaskHienThi(void *pvParameters)
 {
 	HC595_Init();
@@ -84,7 +103,7 @@ void TaskHienThi(void *pvParameters)
 		}
 		xuat_8led_7doan(hc595_handle.tt8led,led_7dq[hc595_handle.tt8led]);
 		hc595_handle.tt8led=(hc595_handle.tt8led+1)%8;
-		vTaskDelayUntil(&lastTime,pdMS_TO_TICKS(5));
+		vTaskDelayUntil(&lastTime,pdMS_TO_TICKS(8));
 	}
 }
 

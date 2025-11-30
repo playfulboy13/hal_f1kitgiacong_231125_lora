@@ -12,6 +12,10 @@
 Task_Handle_t task_handle;
 SemaphoreHandle_t lora_semaphore;
 
+uint8_t relay_state;
+
+char debug[256];
+
 LoRa myLoRa;
 int g_count = 0;
 float g_temp = 0.0f;
@@ -191,19 +195,25 @@ void TaskRTC(void *pvParameters)
 	}
 }
 
+#define LED_NUM 4
+const uint8_t led_bits[LED_NUM] = {LED1_BIT, LED2_BIT, LED3_BIT, LED4_BIT};
+
 void TaskLed(void *pvParameters)
 {
-	while(1)
-	{
-		
-		for(uint8_t i=0;i<8;i++)
-		{
-			hc595_handle.led_data|=(1<<i);
-			vTaskDelay(pdMS_TO_TICKS(500));
-			hc595_handle.led_data&=~(1<<i);
-		}
-	}
+    while(1)
+    {
+        for(uint8_t i = 0; i < LED_NUM; i++)
+        {
+            if(relay_state & (1 << i))
+                set_led_bit(led_bits[i], 1);  // B?t LED
+            else
+                set_led_bit(led_bits[i], 0);  // T?t LED
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
 }
+
 
 void TaskButton(void *pvParameters)
 {
@@ -352,7 +362,7 @@ void TaskMaster(void *pvParameters)
                         rssi = LoRa_getRSSI(&myLoRa);
 
                         // DISPLAY
-                        char debug[256];
+                       
                         sprintf(debug,
                             "MASTER (NODE=%02X OK, retry=%d):\r\n"
                             "S0=%.2f S1=%.2f S2=%.2f S3=%.2f\r\n"
@@ -415,9 +425,8 @@ void TaskMaster(void *pvParameters)
 
 
 
-
-
-#define CMD_ACK 0xA1
+#define CMD_RELAY_CTRL   0xB1
+#define CMD_ACK          0xA1
 
 void TaskNode(void *pvParameters)
 {
@@ -433,7 +442,6 @@ void TaskNode(void *pvParameters)
         78.90, 11.22, 33.44, 55.66
     };
 
-    
     uint8_t custom_param = 0x55;
 
     LoRa_startReceiving(&myLoRa);
@@ -443,30 +451,66 @@ void TaskNode(void *pvParameters)
         if (lora_flag)
         {
             lora_flag = 0;
+
             size = LoRa_receive(&myLoRa, rx_buf, sizeof(rx_buf));
-						 rssi = LoRa_getRSSI(&myLoRa);
-            // ==== CHECK REQUEST ====
-            if (size >= 4 &&
-                rx_buf[0] == FRAME_START &&
+            rssi = LoRa_getRSSI(&myLoRa);
+
+            // Khung không h?p l?
+            if (size < 4 || rx_buf[0] != FRAME_START || rx_buf[size-1] != FRAME_END)
+                goto CONTINUE_RECEIVE;
+
+            // ======================================
+            //      1) X? LÝ L?NH ÐI?U KHI?N RELAY
+            // ======================================
+            if (size >= 7 &&
                 rx_buf[1] == node_id &&
-                rx_buf[2] == CMD_READ_REQ &&
-                rx_buf[3] == FRAME_END)
+                rx_buf[2] == CMD_RELAY_CTRL)
+            {
+                relay_state = rx_buf[3];
+
+                // tính CRC: node_id + CMD + relay_state
+                uint16_t crc_recv = (rx_buf[4] << 8) | rx_buf[5];
+                uint16_t crc_calc = crc16_ccitt(&rx_buf[1], 3);
+
+                if (crc_recv == crc_calc)
+                {
+                    char debug[64];
+                    sprintf(debug,
+                            "NODE %02X RELAY CMD: state=0x%02X\r\n",
+                            node_id, relay_state);
+                    HAL_UART_Transmit(&huart1,
+                                      (uint8_t*)debug, strlen(debug), 50);
+                }
+                else
+                {
+                    HAL_UART_Transmit(&huart1,
+                        (uint8_t*)"NODE RELAY CMD CRC ERROR\r\n",
+                        28, 50);
+                }
+
+                goto CONTINUE_RECEIVE;
+            }
+
+            // ======================================
+            //      2) X? LÝ L?NH Ð?C SENSOR
+            // ======================================
+            if (size == 4 &&
+                rx_buf[1] == node_id &&
+                rx_buf[2] == CMD_READ_REQ)
             {
                 HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
 
-                // ==== C?P NH?T 2 NHI?T Ð? M?I ====
+                // C?p nh?t sensor
                 sensor[0] = adc_value.temp1;
                 sensor[1] = adc_value.temp2;
 
-                // ==== BUILD REPLY ====
                 uint8_t reply[64];
                 uint8_t idx = 0;
 
                 reply[idx++] = FRAME_START;
                 reply[idx++] = node_id;
-                reply[idx++] = 34;   // LEN_DATA
+                reply[idx++] = 34; // LEN DATA
 
-                // 8 FLOAT
                 for (int i = 0; i < 8; i++)
                 {
                     float_to_bytes(sensor[i], &reply[idx]);
@@ -476,29 +520,33 @@ void TaskNode(void *pvParameters)
                 reply[idx++] = counter++;
                 reply[idx++] = custom_param;
 
-                // CRC16 (tính t? node_id + len + payload)
                 uint16_t crc = crc16_ccitt(&reply[1], 1 + 1 + 34);
                 reply[idx++] = (crc >> 8) & 0xFF;
                 reply[idx++] = crc & 0xFF;
 
                 reply[idx++] = FRAME_END;
 
-                // ==== SEND REPLY ====
+                // G?i DATA FRAME
                 LoRa_transmit(&myLoRa, reply, idx, 100);
 
-                // ==== SEND ACK ====
+                // G?i ACK FRAME
                 uint8_t ack[4] = {FRAME_START, node_id, CMD_ACK, FRAME_END};
                 LoRa_transmit(&myLoRa, ack, 4, 50);
 
-                // Chu?n b? nh?n ti?p
                 LoRa_startReceiving(&myLoRa);
                 vTaskDelay(pdMS_TO_TICKS(5));
+
+                goto CONTINUE_RECEIVE;
             }
+
+CONTINUE_RECEIVE:
+            LoRa_startReceiving(&myLoRa);
         }
 
         vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
+
 
 
 

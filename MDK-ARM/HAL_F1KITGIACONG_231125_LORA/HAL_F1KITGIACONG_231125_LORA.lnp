@@ -8,6 +8,7 @@
 "hal_f1kitgiacong_231125_lora\stm32f1xx_it.o"
 "hal_f1kitgiacong_231125_lora\stm32f1xx_hal_msp.o"
 "hal_f1kitgiacong_231125_lora\stm32f1xx_hal_timebase_tim.o"
+"hal_f1kitgiacong_231125_lora\usart3.o"
 "hal_f1kitgiacong_231125_lora\stm32f1xx_hal_gpio_ex.o"
 "hal_f1kitgiacong_231125_lora\stm32f1xx_hal_adc.o"
 "hal_f1kitgiacong_231125_lora\stm32f1xx_hal_adc_ex.o"
